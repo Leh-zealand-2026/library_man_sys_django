@@ -19,4 +19,11 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Our pages
+    path("", include("books.urls")),
+
+    # Django urls
+    path("accounts/", include("django.contrib.auth.urls")),
+
 ]
