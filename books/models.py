@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -54,3 +54,36 @@ class Member(models.Model):
     def __str__(self):
         return self.user.username
 
+class BorrowRecord(models.Model):
+  
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    # making sure when member is deleted we delete their borrow record
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+
+    # using local machine time to see when book was borrowed
+    borrow_date = models.DateField(default=timezone.localdate)
+
+    # need due date to implement fine system for late returns
+    due_date = models.DateField()
+
+
+    # return date is empty until book is returned
+    return_date = models.DateField(null=True, blank=True)
+
+    # book can be returned in 3 types of condition
+    RETURN_CONDITION_CHOICES = [
+        ("good"),
+        ("damaged"),
+        ("lost"),
+    ]
+    return_condition = models.CharField(
+        max_length=10,
+        choices=RETURN_CONDITION_CHOICES,
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.member} borrowed {self.book}"
