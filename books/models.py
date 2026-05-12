@@ -75,9 +75,9 @@ class BorrowRecord(models.Model):
 
     # book can be returned in 3 types of condition
     RETURN_CONDITION_CHOICES = [
-        ("good"),
-        ("damaged"),
-        ("lost"),
+        ("good", "Good"),
+        ("damaged", "Damaged"),
+        ("lost", "Lost"),
     ]
     return_condition = models.CharField(
         max_length=10,
