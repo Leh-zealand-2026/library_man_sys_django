@@ -41,6 +41,19 @@ class Book(models.Model):
     def __str__(self):
         return f"{self.title} by {self.author}"
     
+    # property is a decorator that lets us use a method like an attribute
+    # so even though available copies gets calculated every time instead of being stored
+    # we can still write book.available_copies as if it were an attribute of book.
+    @property
+
+    def borrowed_copies(self):
+        return self.borrowrecord_set.filter(return_date__isnull=True).count()
+
+    # check available
+    @property
+    def available_copies(self):
+        return self.quantity - self.borrowed_copies
+    
 class Member(models.Model):
 
     # django has built in user model that incudes username, password, email, first_name and last_name.
