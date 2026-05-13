@@ -6,6 +6,7 @@
 <body>
     <h1>Books</h1>
 
+    <!-- Search and category filter -->
     <form method="get">
         <input 
             type="text" 
@@ -32,20 +33,36 @@
 
     <hr>
 
+    <!-- Display books -->
     {% for book in books %}
         <div>
             <h2>{{ book.title }}</h2>
+
             <p><strong>Author:</strong> {{ book.author }}</p>
             <p><strong>ISBN:</strong> {{ book.isbn }}</p>
             <p><strong>Publisher:</strong> {{ book.publisher }}</p>
-            <p><strong>Quantity:</strong> {{ book.quantity }}</p>
+
+            <p><strong>Total copies:</strong> {{ book.quantity }}</p>
+            <p><strong>Available copies:</strong> {{ book.available_copies }}</p>
 
             <p>
                 <strong>Categories:</strong>
                 {% for category in book.categories.all %}
                     {{ category.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    No categories
                 {% endfor %}
             </p>
+
+            <!-- Borrow button only appears if copies are available -->
+            {% if book.available_copies > 0 %}
+                <form method="post" action="{% url 'borrow_book' book.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Borrow</button>
+                </form>
+            {% else %}
+                <p><strong>Not available</strong></p>
+            {% endif %}
         </div>
 
         <hr>

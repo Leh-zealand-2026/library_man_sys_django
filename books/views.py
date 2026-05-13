@@ -1,9 +1,15 @@
 from django.contrib.auth import login
 from django.db.models import Q # django database filters
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
+
+# for borrowed books
+from datetime import timedelta
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.http import HttpResponseForbidden # dont allow user to borrow without member profile
 
 from .forms import RegisterForm
-from .models import Book, Category, Member
+from .models import Book, BorrowRecord, Category, Member
 
 
 # https://docs.djangoproject.com/en/6.0/topics/auth/default/#built-in-auth-views
@@ -55,3 +61,24 @@ def book_list(request):
         "search_query": search_query,
         "selected_category": category_id,
     })
+
+# the view for borrowing books
+@login_required
+def borrow_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    # check if user has a member account before letting them borrow
+    try:
+        member = request.user.member
+    except Member.DoesNotExist:
+        return HttpResponseForbidden("Only registered members can borrow books, please create member profile.")
+
+    # check if book copies are available
+    if book.available_copies > 0:
+        BorrowRecord.objects.create(
+            book=book,
+            member=member,
+            due_date=timezone.localdate() + timedelta(days=14)
+        )
+
+    return redirect("book_list")
